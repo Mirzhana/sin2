@@ -21,9 +21,65 @@ namespace sinfunc
             t.Tick += T_Tick;
             t.Start();
             InitializeComponent();
-            arr.Add(new PointF(0, 250));// Curve cannot be drawn without at least two points
-            arr.Add(new PointF(0, 250));//So it is initial two points
+            
+           
         }
+        public void PutPixel(Graphics g, int x, int y, Color c)
+        {
+            Bitmap bm = new Bitmap(1, 1);
+            bm.SetPixel(0, 0, c);
+            g.DrawImageUnscaled(bm, x, y);
+        }
+        bool m_bPlotTanSeries = true;
+        private void Form1_Paint(object sender, PaintEventArgs e)
+        {
+            
+            Graphics g = e.Graphics;
+            g.Clear(Color.LightYellow);
+            Rectangle rect = new Rectangle(0, 0, 500, 400);
+
+            int margin = 60;
+            int width = rect.Width - margin * 2;
+            int height = rect.Height - margin * 2;
+
+            Pen tPen = new Pen(Color.Black);
+            g.DrawRectangle(tPen, 0 + margin / 2, 0 + margin / 2, width, height);
+            g.DrawLine(tPen, 0 + margin / 2, margin / 2 + height / 2, width + margin / 2, margin / 2 + height / 2);
+
+            double legendypos = margin;
+            double legendxpos = margin;
+
+            double PI = Math.PI;
+           
+
+            if (m_bPlotTanSeries == true)
+            {
+                double factor = 10; // Don't use this factor, it is only for drawing purpose.
+                tPen = new Pen(Color.DarkBlue);
+                Brush br = new SolidBrush(Color.DarkBlue);
+               for (double i = 0; i <= 720.01; i += 0.1)
+                {
+                    double value = Math.Tan(i * PI / 180);
+
+                    if (value > factor)
+                        value = factor;
+                    if (value < -factor)
+                        value = -factor;
+                    value += factor;
+
+                    int ypos = (int)(value / (factor * 2) * height + margin / 2);
+                    int xpos = (int)(i / 720.0 * width + margin / 2);
+
+                    PutPixel(g, xpos, ypos, Color.DarkBlue);
+
+                }
+                g.DrawString("TAN Series - DarkBlue Color", Font, br, (float)legendxpos, (float)legendypos, StringFormat.GenericDefault);
+                legendypos += 20;
+            }
+            g.Dispose();
+        }
+
+ 
         int x;
         private void T_Tick(object sender, EventArgs e)
         {
@@ -34,23 +90,7 @@ namespace sinfunc
             Refresh();
         }
 
-        private void Form1_Paint(object sender, PaintEventArgs e)
-        {
-            DrawWithLine(e);
-            e.Graphics.DrawCurve(pen, arr.ToArray());
+
         
-        }
-        //drawing axis x and y
-        private void DrawWithLine(PaintEventArgs e) 
-        {
-          
-            Point p1 = new Point(0 , 250);
-            Point p2 = new Point(500,250);
-            Point p3 = new Point(260, 5);
-            Point p4 = new Point(260, 500);
-            Pen penO = new Pen(Color.Blue);
-            e.Graphics.DrawLine(penO, p1, p2);
-            e.Graphics.DrawLine(penO, p3, p4);
-        }
     }
 }
